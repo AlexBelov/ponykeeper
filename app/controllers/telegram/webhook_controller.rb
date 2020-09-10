@@ -46,8 +46,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   end
 
   def top_drinks!(data = nil, *)
-    ordered_books = Drink.joins(:users).order("COUNT(users.id) DESC").group("drinks.id").limit(5)
-    response = ordered_books.each_with_index.map{|b, i| "#{i + 1}. #{b.url}"}.join("\n")
+    ordered_drinks = Drink.joins(:users).order("COUNT(users.id) DESC").group("drinks.id").limit(5)
+    response = ordered_drinks.each_with_index.map{|d, i| "#{i + 1}. #{d.url}"}.join("\n")
     respond_with :message, text: "*Топ бухла*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
@@ -56,7 +56,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
 
   def top_readers!(data = nil, *)
     ordered_users = User.joins(:books).order("COUNT(books.id) DESC").group("users.id").limit(5)
-    response = ordered_users.each_with_index.map{|b, i| "#{i + 1}. #{b.url}"}.join("\n")
+    response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name}"}.join("\n")
     respond_with :message, text: "*Топ читателей*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
@@ -65,7 +65,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
 
   def top_drinkers!(data = nil, *)
     ordered_users = User.joins(:drinks).order("COUNT(drinks.id) DESC").group("users.id").limit(5)
-    response = ordered_users.each_with_index.map{|b, i| "#{i + 1}. #{b.url}"}.join("\n")
+    response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name}"}.join("\n")
     respond_with :message, text: "*Топ алкоголиков*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red

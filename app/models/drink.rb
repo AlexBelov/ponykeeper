@@ -5,6 +5,7 @@ class Drink < ApplicationRecord
 
   def self.handle_drink(payload)
     url = URI.extract(payload).first
+    return unless url.present?
     Drink.where(url: url).first_or_create
   end
 
