@@ -15,7 +15,9 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'pry-rails'
 gem 'colorize'
 gem 'amazing_print'
-gem 'telegram-bot-ruby'
+gem 'telegram-bot'
+gem 'by_star'
+gem 'russian'
 
 group :development do
   gem 'web-console', '>= 3.3.0'

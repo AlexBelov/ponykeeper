@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(version: 2020_09_10_145956) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.integer "telegram_id"
     t.string "first_name"
     t.string "last_name"
     t.string "username"
