@@ -27,33 +27,46 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     end
   end
 
-  def top_books!(data = nil, *)
-    response = "Здесь будет топ книг"
+  def roll!(data = nil, *)
+    result = ['Пить =)', 'Не пить =('].sample
+    response = "Пить или не пить? - *#{result}*"
     respond_with :message, text: response, parse_mode: :Markdown
+  rescue Exception => e
+    puts "Error in command handler".red
+    puts e.message
+  end
+
+  def top_books!(data = nil, *)
+    ordered_books = Book.joins(:users).order("COUNT(users.id) DESC").group("books.id").limit(5)
+    response = ordered_books.each_with_index.map{|b, i| "#{i + 1}. #{b.url}"}.join("\n")
+    respond_with :message, text: "*Топ книг*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
   end
 
   def top_drinks!(data = nil, *)
-    response = "Здесь будет топ бухла"
-    respond_with :message, text: response, parse_mode: :Markdown
+    ordered_books = Drink.joins(:users).order("COUNT(users.id) DESC").group("drinks.id").limit(5)
+    response = ordered_books.each_with_index.map{|b, i| "#{i + 1}. #{b.url}"}.join("\n")
+    respond_with :message, text: "*Топ бухла*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
   end
 
   def top_readers!(data = nil, *)
-    response = "Здесь будет топ читателей"
-    respond_with :message, text: response, parse_mode: :Markdown
+    ordered_users = User.joins(:books).order("COUNT(books.id) DESC").group("users.id").limit(5)
+    response = ordered_users.each_with_index.map{|b, i| "#{i + 1}. #{b.url}"}.join("\n")
+    respond_with :message, text: "*Топ читателей*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
   end
 
   def top_drinkers!(data = nil, *)
-    response = "Здесь будет топ алкоголиков"
-    respond_with :message, text: response, parse_mode: :Markdown
+    ordered_users = User.joins(:drinks).order("COUNT(drinks.id) DESC").group("users.id").limit(5)
+    response = ordered_users.each_with_index.map{|b, i| "#{i + 1}. #{b.url}"}.join("\n")
+    respond_with :message, text: "*Топ алкоголиков*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
