@@ -7,6 +7,7 @@ development:
   password: <%= ENV["PG_PASSWORD"] %>
 
 production:
+  adapter: postgresql
   url:  <%= ENV["DATABASE_URL"] %>
   pool: <%= ENV["DB_POOL"] || 5 %>
   prepared_statements: false
