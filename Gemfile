@@ -19,6 +19,7 @@ gem 'telegram-bot'
 gem 'by_star'
 gem 'russian'
 gem 'rails_admin', '~> 2.0'
+gem 'devise'
 
 group :development do
   gem 'web-console', '>= 3.3.0'
