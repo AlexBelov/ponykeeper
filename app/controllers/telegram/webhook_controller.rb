@@ -111,6 +111,10 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     response = Book.add_book(user, data)
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
+    achievement =  user.check_for_achievements
+    if achievement.present?
+      respond_with :message, text: achievement.response(user), parse_mode: :Markdown
+    end
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
