@@ -9,7 +9,7 @@ class Drink < ApplicationRecord
     return "Не могу найти напиток в картотеке" unless drink.present?
     abv = handle_abv(tags)
     volume = handle_volume(tags)
-    DrinksUser.create(user: user, drink: drink, abv: abv, volume: volume)
+    DrinksUser.create(user: user, drink: drink, abv: abv, volume: volume, file_id: file_id)
     return "Теперь #{user.full_name} выпил #{Drink.pluralize(user.drinks.count)}! (#{Drink.pluralize(user.drinks_this_month)} за этот месяц)"
   rescue
     nil

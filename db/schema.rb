@@ -51,6 +51,7 @@ ActiveRecord::Schema.define(version: 2020_09_11_112759) do
     t.integer "drink_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "file_id"
     t.decimal "abv", precision: 10, scale: 2
     t.decimal "volume", precision: 10, scale: 2
   end
