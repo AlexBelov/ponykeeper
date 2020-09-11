@@ -1,28 +1,18 @@
 class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def message(message)
+    response = '';
+    user = User.handle_user(message['from'])
     if message['new_chat_participant'].present?
       response = "Добро пожаловать в Бухотеку Мэйнхэттена, *#{User.get_full_name(message['new_chat_participant'])}*!\n\nУ нас можно (и нужно) обсуждать книги и алкоголь.\nБот считает ссылки на основные книжные сайты (#{Book::SITES.join(', ')}) и untappd и раздаёт ачивки алкоголикам и тунеядцам!"
       response += "[\u200c](https://i1.7fon.org/1000/g489563.jpg)"
       respond_with :message, text: response, parse_mode: :Markdown
-    else
-      text = message['text']
-      return unless text.present?
-      has_books = text.match?(Regexp.new(Book::SITES.join('|')));
-      maybe_has_drinks = message['photo'].present?
-      return unless has_books || maybe_has_drinks
-      response = "";
-      user = User.handle_user(message['from'])
-      if has_books
-        book = Book.handle_book(message['text'])
-        return unless book.present?
-        response = "Своим библиотекарским чутьём я вижу, что вы упомянули книгу. Чтобы добавить книгу в прочитанное используйте команду */add_book ссылка_на_книгу*"
-      elsif maybe_has_drinks
-        response = Drink.handle_drink(user, message)
-        return unless response.present?
-      end
-      return unless response.present?
-      respond_with :message, text: response, parse_mode: :Markdown
+    elsif message['text'].present?
+      response = Book.detect_book_mention(message['text'])
+    elsif message['photo'].present?
+      response = Drink.handle_drink(user, message)
     end
+    return unless response.present?
+    respond_with :message, text: response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in message handler - #{e.message}".red
     return true
@@ -104,14 +94,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def add_book!(data = nil, *)
     user = User.handle_user(from)
     return unless user.present?
-    book = Book.handle_book(data)
-    return unless book.present?
-    response = if user.books.include?(book)
-      "Вы уже читали эту книгу"
-    else
-      user.books << book
-      "Теперь #{user.full_name} прочитал #{Book.pluralize(user.books.count)}! (#{Book.pluralize(user.books_this_month)} за этот месяц)"
-    end
+    response = Book.handle_book(user, data)
+    return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
