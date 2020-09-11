@@ -3,7 +3,7 @@ class Drink < ApplicationRecord
 
   def self.handle_drink(user, payload)
     file_id = payload['photo'].first['file_id']
-    tags = payload['caption'].split('#').map(&:strip).filter{|t| t.present?}
+    tags = payload['caption'].split('#').map(&:strip).filter{|t| t.present?}.map(&:downcase)
     return nil unless tags.present?
     drink = Drink.where(name: tags).first
     return "Не могу найти напиток в картотеке" unless drink.present?
