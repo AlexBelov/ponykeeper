@@ -8,7 +8,7 @@ class Achievement < ApplicationRecord
       find_by(slug: 'good_day')
     elsif drinks_today && books_today && !user.has_achievement_today?(Achievement.find_by(slug: 'drink_and_read'))
       find_by(slug: 'drink_and_read')
-    elsif drinks_today > 3 &&  !user.has_achievement_today?(Achievement.find_by(slug: 'non_stop'))
+    elsif drinks_today.count > 3 &&  !user.has_achievement_today?(Achievement.find_by(slug: 'non_stop'))
       find_by(slug: 'non_stop')
     end
     return nil unless achievement.present?
