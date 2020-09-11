@@ -14,9 +14,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       if has_books
         book = Book.handle_book(message['text'])
         return unless book.present?
-        return if user.books.include?(book)
-        user.books << book
-        response = "Теперь #{user.full_name} прочитал #{Book.pluralize(user.books.count)}! (#{Book.pluralize(user.books_this_month)} за этот месяц)"
+        response = "Своим библиотекарским чутьём я вижу, что вы упомянули книгу. Чтобы добавить книгу в прочитанное используйте команду */add_book ссылка_на_книгу*"
       # elsif has_drinks
         # drink = Drink.handle_drink(message['text'])
         # return unless drink.present?
@@ -97,6 +95,23 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     else
       new_drink = Drink.where(name: data.downcase).first_or_create
       "Напиток *#{new_drink.name}* добавлен. Теперь его можно использовать в качестве тега"
+    end
+    respond_with :message, text: response, parse_mode: :Markdown
+  rescue Exception => e
+    puts "Error in command handler".red
+    puts e.message
+  end
+
+  def add_book!(data = nil, *)
+    user = User.handle_user(from)
+    return unless user.present?
+    book = Book.handle_book(data)
+    return unless book.present?
+    response = if user.books.include?(book)
+      "Вы уже читали эту книгу"
+    else
+      user.books << book
+      "Теперь #{user.full_name} прочитал #{Book.pluralize(user.books.count)}! (#{Book.pluralize(user.books_this_month)} за этот месяц)"
     end
     respond_with :message, text: response, parse_mode: :Markdown
   rescue Exception => e
