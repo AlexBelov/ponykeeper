@@ -8,18 +8,17 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       text = message['text']
       return unless text.present?
       has_books = text.match?(Regexp.new(Book::SITES.join('|')));
-      return unless has_books || has_drinks
+      maybe_has_drinks = message['photo'].present?
+      return unless has_books || maybe_has_drinks
       response = "";
       user = User.handle_user(message['from'])
       if has_books
         book = Book.handle_book(message['text'])
         return unless book.present?
         response = "Своим библиотекарским чутьём я вижу, что вы упомянули книгу. Чтобы добавить книгу в прочитанное используйте команду */add_book ссылка_на_книгу*"
-      # elsif has_drinks
-        # drink = Drink.handle_drink(message['text'])
-        # return unless drink.present?
-        # user.drinks << drink
-        # response = "Теперь #{user.full_name} выпил #{Drink.pluralize(user.drinks.count)}! (#{Drink.pluralize(user.drinks_this_month)} за этот месяц)"
+      elsif maybe_has_drinks
+        response = Drink.handle_drink(user, message)
+        return unless response.present?
       end
       return unless response.present?
       respond_with :message, text: response, parse_mode: :Markdown
