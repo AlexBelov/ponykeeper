@@ -3,8 +3,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     response = '';
     user = User.handle_user(message['from'])
     if message['new_chat_participant'].present?
-      response = "Добро пожаловать в Бухотеку Мэйнхэттена, *#{User.get_full_name(message['new_chat_participant'])}*!\n\nУ нас можно (и нужно) обсуждать книги и алкоголь.\nБот считает ссылки на основные книжные сайты (#{Book::SITES.join(', ')}) и untappd и раздаёт ачивки алкоголикам и тунеядцам!"
-      response += "[\u200c](https://i1.7fon.org/1000/g489563.jpg)"
+      response = "Добро пожаловать в Бухотеку Мэйнхэттена, *#{User.get_full_name(message['new_chat_participant'])}*!\n\nУ нас можно (и нужно) обсуждать книги и алкоголь.\nНажмите /rules чтобы получить справку по боту, он умеет много полезных штук!"
+      response += "[\u200c](#{Image.random})"
       respond_with :message, text: response, parse_mode: :Markdown
     elsif message['text'].present?
       response = Book.detect_book_mention(message['text'])
@@ -20,6 +20,15 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   rescue Exception => e
     puts "Error in message handler - #{e.message}".red
     return true
+  end
+
+  def rules!(data = nil, *)
+    response = Message.find_by(slug: 'rules').try(:content)
+    return unless response.present?
+    respond_with :message, text: response, parse_mode: :Markdown
+  rescue Exception => e
+    puts "Error in command handler".red
+    puts e.message
   end
 
   def roll!(data = nil, *)

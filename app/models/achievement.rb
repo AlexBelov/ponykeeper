@@ -17,6 +17,6 @@ class Achievement < ApplicationRecord
   end
 
   def response(user)
-    "*#{user.full_name}* получает достижение *#{name}*!\n_#{description}_"
+    "*#{user.full_name}* получает достижение *#{name}*!\n_#{description}_[\u200c](#{Image.random})"
   end
 end
