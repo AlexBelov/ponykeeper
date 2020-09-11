@@ -94,7 +94,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def add_book!(data = nil, *)
     user = User.handle_user(from)
     return unless user.present?
-    response = Book.handle_book(user, data)
+    response = Book.add_book(user, data)
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
   rescue Exception => e
