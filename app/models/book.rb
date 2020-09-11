@@ -5,6 +5,7 @@ class Book < ApplicationRecord
 
   def self.detect_book_mention(payload)
     book = extract_book(payload)
+    return nil unless book.present?
     "Своим библиотекарским чутьём я вижу, что вы упомянули книгу. Чтобы добавить книгу в прочитанное используйте команду */add_book ссылка_на_книгу*"
   rescue
     nil
