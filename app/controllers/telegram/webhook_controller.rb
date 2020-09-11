@@ -25,7 +25,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def rules!(data = nil, *)
     response = Message.find_by(slug: 'rules').try(:content)
     return unless response.present?
-    respond_with :message, text: response, parse_mode: :Markdown
+    respond_with :message, text: response
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
@@ -51,7 +51,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
 
   def top_drinks!(data = nil, *)
     ordered_drinks = Drink.joins(:users).order("COUNT(users.id) DESC").group("drinks.id").limit(5)
-    response = ordered_drinks.each_with_index.map{|d, i| "#{i + 1}. #{d.url}"}.join("\n")
+    response = ordered_drinks.each_with_index.map{|d, i| "#{i + 1}. #{d.name}"}.join("\n")
     respond_with :message, text: "*Топ бухла*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
