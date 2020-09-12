@@ -5,6 +5,7 @@ class User < ApplicationRecord
   has_and_belongs_to_many :books
   has_and_belongs_to_many :drinks
   has_and_belongs_to_many :achievements
+  has_and_belongs_to_many :ranks
 
   def full_name
     [first_name, last_name].join(' ').strip
@@ -12,6 +13,10 @@ class User < ApplicationRecord
 
   def check_for_achievements
     Achievement.check_for_achievements(self)
+  end
+
+  def check_for_ranks
+    Rank.check_for_ranks(self)
   end
 
   def has_achievement_today?(achievement)

@@ -39,6 +39,9 @@ class Achievement < ApplicationRecord
   end
 
   def response(user)
-    "*#{user.full_name}* получает достижение *#{name}*!\n_#{description}_[\u200c](#{Image.random})"
+    message = Message.find_by(slug: 'achievement')
+    return unless message.present?
+    response = message.interpolate({full_name: user.full_name, name: name, description: description})
+    response = Message.add_random_image(response)
   end
 end

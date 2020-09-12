@@ -16,9 +16,14 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     end
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
-    achievements = check_for_achievements ? user.check_for_achievements : nil
+    return unless check_for_achievements
+    achievements = user.check_for_achievements
     if achievements.present?
       achievements.each{|a| respond_with :message, text: a.response(user), parse_mode: :Markdown}
+    end
+    ranks = user.check_for_ranks
+    if ranks.present?
+      ranks.each{|r| respond_with :message, text: r.response(user), parse_mode: :Markdown}
     end
   rescue Exception => e
     puts "Error in message handler - #{e.message}".red
@@ -118,6 +123,10 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     achievements =  user.check_for_achievements
     if achievements.present?
       achievements.each{|a| respond_with :message, text: a.response(user), parse_mode: :Markdown}
+    end
+    ranks = user.check_for_ranks
+    if ranks.present?
+      ranks.each{|r| respond_with :message, text: r.response(user), parse_mode: :Markdown}
     end
   rescue Exception => e
     puts "Error in command handler".red
