@@ -34,10 +34,14 @@ class User < ApplicationRecord
   end
 
   def books_this_month
-    BooksUser.where(user_id: id).after(Time.current.beginning_of_month).count
+    books_user.after(Time.current.beginning_of_month).count
+  end
+
+  def drinks_today
+    drinks_user.today.count
   end
 
   def drinks_this_month
-    DrinksUser.where(user_id: id).after(Time.current.beginning_of_month).count
+    drinks_user.after(Time.current.beginning_of_month).count
   end
 end
