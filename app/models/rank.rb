@@ -1,6 +1,6 @@
 class Rank < ApplicationRecord
-  has_and_belongs_to_many :users
   enum entity: [:drink, :book]
+  has_and_belongs_to_many :users
 
   def self.check_for_ranks(user)
     drinks = user.drinks.count
@@ -18,6 +18,6 @@ class Rank < ApplicationRecord
     message = Message.find_by(slug: 'rank')
     return unless message.present?
     response = message.interpolate({full_name: user.full_name, name: name})
-    response = Message.add_random_image(response)
+    response = Message.add_image(response, entity)
   end
 end
