@@ -132,4 +132,24 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     puts "Error in command handler".red
     puts e.message
   end
+
+  def all_achievements!(data = nil, *)
+    user = User.handle_user(from)
+    return unless user.present?
+    response = Achievement.all.each_with_index.map{|a, i| "#{i+1}. *#{a.name}* - _#{a.description}_"}.join("\n")
+    respond_with :message, text: response, parse_mode: :Markdown
+  rescue Exception => e
+    puts "Error in command handler".red
+    puts e.message
+  end
+
+  def my_achievements!(data = nil, *)
+    user = User.handle_user(from)
+    return unless user.present?
+    response = user.achievements.uniq.each_with_index.map{|a, i| "#{i+1}. *#{a.name}* - _#{a.description}_"}.join("\n")
+    respond_with :message, text: response, parse_mode: :Markdown
+  rescue Exception => e
+    puts "Error in command handler".red
+    puts e.message
+  end
 end
