@@ -13,10 +13,27 @@ class Book < ApplicationRecord
 
   def self.add_book(user, payload)
     book = extract_book(payload)
-    response = if user.books.include?(book)
-      "Вы уже читали эту книгу"
+    response = if user.books_users.where(book_id: book.id, finished: true).present?
+      "Вы уже прочитали эту книгу"
+    elsif user.books_users.where(book_id: book.id, finished: false).present?
+      user.books << book
+      "#{user.full_name} продолжает читать #{Book.pluralize(user.books.count)}"
     else
       user.books << book
+      "#{user.full_name} начинает читать #{Book.pluralize(user.books.count)}"
+    end
+    return response
+  rescue
+    nil
+  end
+
+    def self.finish_book(user, payload)
+    book = extract_book(payload)
+    response = if user.books_users.where(book_id: book.id, finished: true).present?
+      "Вы уже прочитали эту книгу"
+    else
+      user.books << book
+      BooksUser.create(book_id: book.id, user_id: user.id, finished: true)
       "Теперь #{user.full_name} прочитал #{Book.pluralize(user.books.count)}! (#{Book.pluralize(user.books_this_month)} за этот месяц)"
     end
     return response
