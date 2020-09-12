@@ -4,8 +4,10 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     user = User.handle_user(message['from'])
     check_for_achievements = true
     if message['new_chat_participant'].present?
-      response = "Добро пожаловать в Бухотеку Мэйнхэттена, *#{User.get_full_name(message['new_chat_participant'])}*!\n\nУ нас можно (и нужно) обсуждать книги и алкоголь.\nНажмите /rules чтобы получить справку по боту, он умеет много полезных штук!"
-      response += "[\u200c](#{Image.random})"
+      message = Message.find_by(slug: 'welcome')
+      return unless message.present?
+      response = message.interpolate({first_name: User.get_full_name(message['new_chat_participant'])})
+      response = Message.add_random_image(response)
       check_for_achievements = false
     elsif message['text'].present?
       response = Book.detect_book_mention(message['text'])
@@ -24,7 +26,9 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   end
 
   def rules!(data = nil, *)
-    response = Message.find_by(slug: 'rules').try(:content)
+    message = Message.find_by(slug: 'rules')
+    return unless message.present?
+    response = message.interpolate([])
     return unless response.present?
     respond_with :message, text: response
   rescue Exception => e
