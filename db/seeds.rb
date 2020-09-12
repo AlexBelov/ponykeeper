@@ -35,3 +35,36 @@ Message.where(slug: 'achievement').first_or_create(content: "*%{full_name}* по
 Message.where(slug: 'rank').first_or_create(content: "*%{full_name}* получает новый ранг *%{name}*!")
 
 Config.where(key: 'strong_alcohol_threshold').first_or_create(value: '12')
+
+# Rank.all.map{|r| "{entity: :#{r.entity}, threshold: #{r.threshold}, name: \"#{r.name}\"},"}
+[
+  {entity: :drink, threshold: 1, name: "Начинающий алкоголик"},
+  {entity: :drink, threshold: 10, name: "Ударник алкольного труда"},
+  {entity: :drink, threshold: 50, name: "Пьяница"},
+  {entity: :drink, threshold: 100, name: "Бог-император"},
+  {entity: :book, threshold: 1, name: "Первоклашка"},
+  {entity: :book, threshold: 5, name: "Подающий надежды читатель"},
+  {entity: :book, threshold: 20, name: "Хэйтер деревьев"},
+  {entity: :book, threshold: 100, name: "Твайлайт смотрит на тебя с восторгом!"},
+  {entity: :book, threshold: 50, name: "Best book borrower"},
+  {entity: :book, threshold: 10, name: "Постоянный посетитель библиотеки"}
+].each do |rank|
+  Rank.where(name: rank[:name]).first_or_create(entity: rank[:entity], threshold: rank[:threshold])
+end
+
+# Achievement.all.map{|a| "{name: \"#{a.name}\", description: \"#{a.description}\", condition: \"#{a.condition}\"},"}
+[
+  {name: "Ни шагу назад!", description: "Выпить за день больше 3 раз", condition: "drinks_today > 3"},
+  {name: "День прошёл не зря", description: "Выпить минимум один раз за день", condition: "drinks_today >= 1"},
+  {name: "Читать и бухать лучше одновременно", description: "Читать и пить в один день", condition: "drinks_today >= 1 && books_today >= 1"},
+  {name: "Идём на повышение!", description: "Повысить градус как минимум один раз", condition: "abv_relations.include?('+1')"},
+  {name: "Идём на понижение!", description: "Понизить градус как минимум один раз", condition: "abv_relations.include?('-1')"},
+  {name: "Корейский рандом", description: "Повысить градус после его понижения", condition: "abv_relations.include?('-1,+1') || abv_relations.include?('-1,0,+1')"},
+  {name: "Бездонная бочка", description: "Выпить больше двух литров за день", condition: "volume_today >= 2000"},
+  {name: "Ударник", description: "Выпить больше 10 раз за неделю", condition: "drinks_this_week >= 10"},
+  {name: "Постоянный читатель", description: "Добавить за неделю семь книг в процессе чтения", condition: "books_this_week >= 7"},
+  {name: "Любитель догоняться", description: "Выпить меньший объем после большего", condition: "volume_relations.include?('0,-1') || volume_relations.include?('+1,-1')"},
+  {name: "Крепкий читатель", description: "Выпить крепкий алкоголь и читать книгу", condition: "abv_sequence.include?('strong') && books_today >= 1"}
+].each do |a|
+  Achievement.where(name: a[:name]).first_or_create(description: a[:description], condition: a[:condition])
+end
