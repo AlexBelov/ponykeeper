@@ -4,9 +4,9 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     user = User.handle_user(message['from'])
     check_for_achievements = true
     if message['new_chat_participant'].present?
-      message = Message.find_by(slug: 'welcome')
-      return unless message.present?
-      response = message.interpolate({first_name: User.get_full_name(message['from'])})
+      msg = Message.find_by(slug: 'welcome')
+      return unless msg.present?
+      response = msg.interpolate({first_name: User.get_full_name(message['new_chat_participant'])})
       response = Message.add_random_image(response)
       check_for_achievements = false
     elsif message['text'].present?
