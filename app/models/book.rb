@@ -15,6 +15,8 @@ class Book < ApplicationRecord
     book = extract_book(payload)
     response = if user.books_users.where(book_id: book.id, finished: true).present?
       "Вы уже прочитали эту книгу"
+    elsif user.books_users.where(book_id: book.id, finished: false).today.present?
+      "Сегодня вы уже читали эту книгу"
     elsif user.books_users.where(book_id: book.id, finished: false).present?
       user.books << book
       "#{user.full_name} продолжает читать [книгу](#{book.url})"

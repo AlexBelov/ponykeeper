@@ -44,6 +44,5 @@ class Achievement < ApplicationRecord
     message = Message.find_by(slug: 'achievement')
     return unless message.present?
     response = message.interpolate({full_name: user.full_name, name: name, description: description})
-    response = Message.add_random_image(response)
   end
 end

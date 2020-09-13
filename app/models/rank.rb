@@ -4,7 +4,7 @@ class Rank < ApplicationRecord
 
   def self.check_for_ranks(user)
     drinks = user.drinks.count
-    books = user.books.count
+    books = user.users_books.where(finished: true).count
     drink_ranks = Rank.where(entity: :drink).
       where('threshold < ?', drinks).
       filter{|r| !user.ranks.where(id: r.id).present?}
@@ -19,6 +19,5 @@ class Rank < ApplicationRecord
     message = Message.find_by(slug: 'rank')
     return unless message.present?
     response = message.interpolate({full_name: user.full_name, name: name})
-    response = Message.add_image(response, entity)
   end
 end
