@@ -17,10 +17,10 @@ class Book < ApplicationRecord
       "Вы уже прочитали эту книгу"
     elsif user.books_users.where(book_id: book.id, finished: false).present?
       user.books << book
-      "#{user.full_name} продолжает читать #{Book.pluralize(user.books.count)}"
+      "#{user.full_name} продолжает читать [книгу](#{book.url})"
     else
       user.books << book
-      "#{user.full_name} начинает читать #{Book.pluralize(user.books.count)}"
+      "#{user.full_name} начинает читать новую книгу"
     end
     return response
   rescue
