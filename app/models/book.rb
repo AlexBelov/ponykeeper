@@ -34,10 +34,11 @@ class Book < ApplicationRecord
     else
       user.books << book
       BooksUser.create(book_id: book.id, user_id: user.id, finished: true)
-      "Теперь #{user.full_name} прочитал #{Book.pluralize(user.books.count)}! (#{Book.pluralize(user.books_this_month)} за этот месяц)"
+      "Теперь #{user.full_name} прочитал #{Book.pluralize(user.books_users.where(finished: true).count)}! (#{Book.pluralize(user.books_finished_this_month)} за этот месяц)"
     end
     return response
-  rescue
+  rescue Exception => e
+    puts "Exception in finish book - #{e.message}".red
     nil
   end
 

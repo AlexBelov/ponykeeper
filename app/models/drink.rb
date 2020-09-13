@@ -10,8 +10,9 @@ class Drink < ApplicationRecord
     abv = handle_abv(tags)
     volume = handle_volume(tags)
     DrinksUser.create(user: user, drink: drink, abv: abv, volume: volume, file_id: file_id)
-    return "Теперь #{user.full_name} выпил #{Drink.pluralize(user.drinks.count)}! (#{Drink.pluralize(user.drinks_today)} за этот сегодня)"
-  rescue
+    return "Теперь #{user.full_name} выпил #{Drink.pluralize(user.drinks.count)}! (#{Drink.pluralize(user.drinks_today)} за сегодня)"
+  rescue Exception => e
+    puts "Exception in handle drink - #{e.message}".red
     nil
   end
 
