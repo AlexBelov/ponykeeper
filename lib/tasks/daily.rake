@@ -1,7 +1,7 @@
 namespace :daily do
   desc "Person of a day"
   task person_of_a_day: :environment do
-    chat_id = Config.find_by(key: 'chat_id').value.to_i
+    chat_id = Rails.application.credentials.telegram[:bot][:chat_id].to_i
     return unless chat_id.present?
     user = User.where.not(username: [nil, '']).sample
     message = Message.find_by(slug: 'person_of_a_day')

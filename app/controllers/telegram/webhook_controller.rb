@@ -1,4 +1,6 @@
 class Telegram::WebhookController < Telegram::Bot::UpdatesController
+  include ActionView::Helpers::DateHelper
+
   def message(message)
     response = '';
     user = User.handle_user(message['from'])
@@ -8,6 +10,14 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       return unless msg.present?
       response = msg.interpolate({first_name: User.get_full_name(message['new_chat_participant'])})
       response = Message.add_random_image(response)
+    elsif message['text'].present? && message['text'] == '!kick'
+      response = kick_or_ban(message, false)
+    elsif message['text'].present? && message['text'] == '!ban'
+      response = kick_or_ban(message, true)
+    elsif message['text'].present? && message['text'].include?('!mute')
+      response = mute_or_unmute(message, false)
+    elsif message['text'].present? && message['text'].include?('!unmute')
+      response = mute_or_unmute(message, true)
     elsif message['text'].present?
       response = Book.detect_book_mention(message['text'])
     elsif message['photo'].present?
@@ -166,5 +176,73 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
+  end
+
+  private
+
+  def kick_or_ban(message, ban = false)
+    user = User.handle_user(message['from'])
+    return unless user.present? && user.admin.present?
+    return unless message['reply_to_message'].present?
+    new_participant = message['reply_to_message']['new_chat_participant']
+    message_from = message['reply_to_message']['from']
+    cannot_kick_usernames = Admin.where.not(user_id: nil).includes(:user).pluck(:username).concat([Rails.application.credentials.telegram[:bot][:username]])
+    user_id, name = if new_participant.present?
+      [new_participant['id'], [new_participant['first_name'], new_participant['last_name']].join(' ')]
+    elsif message_from.present? && !cannot_kick_usernames.include?(message_from['username'])
+      [message_from['id'], [message_from['first_name'], message_from['last_name']].join(' ')]
+    end
+    return "Не могу #{ban ? 'забанить' : 'кикнуть'} пользователя" unless user_id.present?
+    until_date = ban ? (Time.current + 2.years).to_i : (Time.current + 1.minute).to_i
+    Telegram.bot.kick_chat_member({chat_id: Rails.application.credentials.telegram[:bot][:chat_id].to_i, user_id: user_id, until_date: until_date})
+    "*#{user.full_name}* #{ban ? 'забанил' : 'кикнул'} *#{name}*"
+  end
+
+  def mute_or_unmute(message, unmute = false)
+    user = User.handle_user(message['from'])
+    mute_for = message['text'].gsub('!mute', '').strip
+    mute_for = '1 hour' unless mute_for.present?
+    mute_for = '3 years' if unmute
+    return unless user.present? && user.admin.present?
+    return unless message['reply_to_message'].present?
+    new_participant = message['reply_to_message']['new_chat_participant']
+    message_from = message['reply_to_message']['from']
+    cannot_kick_usernames = Admin.where.not(user_id: nil).includes(:user).pluck(:username).concat([Rails.application.credentials.telegram[:bot][:username]])
+    user_id, name = if new_participant.present?
+      [new_participant['id'], [new_participant['first_name'], new_participant['last_name']].join(' ')]
+    elsif message_from.present? && !cannot_kick_usernames.include?(message_from['username'])
+      [message_from['id'], [message_from['first_name'], message_from['last_name']].join(' ')]
+    end
+    return "Не могу замьютить пользователя" unless user_id.present?
+    value = begin mute_for.scan(/\d+/)[0].to_i rescue 1 end
+    mute_time, unit =
+    if mute_for.include?('year')
+      value.years
+    elsif mute_for.include?('month')
+      value.months
+    elsif mute_for.include?('week')
+      value.weeks
+    elsif mute_for.include?('day')
+      value.days
+    elsif mute_for.include?('hour')
+      value.hours
+    else
+      value.minutes
+    end
+    until_time = Time.current + mute_time
+    Telegram.bot.restrict_chat_member({
+      chat_id: Rails.application.credentials.telegram[:bot][:chat_id].to_i,
+      user_id: user_id,
+      permissions: {
+        can_send_messages: unmute,
+        can_send_media_messages: unmute,
+        can_send_polls: unmute,
+        can_send_other_messages: unmute,
+        can_add_web_page_previews: unmute
+      },
+      until_date: until_time.to_i
+    })
+    return "*#{user.full_name}* cнял мьют с *#{name}*" if unmute
+    "*#{user.full_name}* замьютил *#{name}* на #{distance_of_time_in_words(Time.current, until_time)}"
   end
 end

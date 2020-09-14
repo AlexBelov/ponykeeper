@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_one :admin
   has_many :drinks_users
   has_many :books_users
   has_many :achievements_users
