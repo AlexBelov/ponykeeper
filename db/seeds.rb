@@ -68,3 +68,6 @@ end
 ].each do |a|
   Achievement.where(name: a[:name]).first_or_create(description: a[:description], condition: a[:condition])
 end
+
+Config.where(key: 'chat_id').first_or_create(value: '')
+Message.where(slug: 'person_of_a_day').first_or_create(content: "")
