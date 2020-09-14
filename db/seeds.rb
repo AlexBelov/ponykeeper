@@ -70,4 +70,5 @@ end
 end
 
 Config.where(key: 'chat_id').first_or_create(value: '')
-Message.where(slug: 'person_of_a_day').first_or_create(content: "")
+Message.where(slug: 'person_of_a_day').first_or_create(content: "*Человеком дня* сегодня будет %{username}! Поднимем же за него бокалы!")
+Message.where(slug: 'drink_buddy').first_or_create(content: "*%{buddy_name}* сегодня пьёт с *%{master_name}*")

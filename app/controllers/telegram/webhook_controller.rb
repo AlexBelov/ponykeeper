@@ -154,4 +154,18 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     puts "Error in command handler".red
     puts e.message
   end
+
+  def find_drink_buddy!(data = nil, *)
+    user = User.handle_user(from)
+    return unless user.present?
+    buddy = User.where.not(id: user.id, username: [nil, '']).sample
+    message = Message.find_by(slug: 'drink_buddy')
+    return unless message.present?
+    response = message.interpolate({master_name: "@#{user.username}", buddy_name: "@#{buddy.username}"})
+    response = Message.add_image(response, :drink)
+    respond_with :message, text: response, parse_mode: :Markdown
+  rescue Exception => e
+    puts "Error in command handler".red
+    puts e.message
+  end
 end
