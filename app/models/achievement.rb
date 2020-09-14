@@ -47,4 +47,14 @@ class Achievement < ApplicationRecord
     return unless message.present?
     response = message.interpolate({full_name: user.full_name, name: name, description: description})
   end
+
+  rails_admin do
+    list do
+      field :id
+      field :entity
+      field :name
+      field :condition
+      include_all_fields
+    end
+  end
 end

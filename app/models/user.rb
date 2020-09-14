@@ -11,6 +11,10 @@ class User < ApplicationRecord
     [first_name, last_name].join(' ').strip
   end
 
+  def title
+    "##{id} #{username}"
+  end
+
   def check_for_achievements
     Achievement.check_for_achievements(self)
   end
