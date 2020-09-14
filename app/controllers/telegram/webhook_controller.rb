@@ -2,17 +2,18 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def message(message)
     response = '';
     user = User.handle_user(message['from'])
-    check_for_achievements = true
+    check_for_achievements = false
     if message['new_chat_participant'].present?
       msg = Message.find_by(slug: 'welcome')
       return unless msg.present?
       response = msg.interpolate({first_name: User.get_full_name(message['new_chat_participant'])})
       response = Message.add_random_image(response)
-      check_for_achievements = false
     elsif message['text'].present?
       response = Book.detect_book_mention(message['text'])
+      check_for_achievements = true
     elsif message['photo'].present?
       response = Drink.handle_drink(user, message)
+      check_for_achievements = true
     end
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
