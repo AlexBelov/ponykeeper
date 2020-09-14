@@ -4,7 +4,7 @@ class Rank < ApplicationRecord
 
   def self.check_for_ranks(user)
     drinks = user.drinks.count
-    books = user.users_books.where(finished: true).count
+    books = user.books_users.where(finished: true).count
     drink_ranks = Rank.where(entity: :drink).
       where('threshold < ?', drinks).
       filter{|r| !user.ranks.where(id: r.id).present?}
