@@ -1,4 +1,6 @@
 class Achievement < ApplicationRecord
+  enum entity: [:drink, :book]
+
   has_and_belongs_to_many :users
 
   def self.check_for_achievements(user)
@@ -12,7 +14,7 @@ class Achievement < ApplicationRecord
     books_this_month = user.books_users.after(Time.current.beginning_of_week).count
     books_finished_this_month = user.books_users.where(finished: true).after(Time.current.beginning_of_week).count
     drinks_this_month = user.drinks_users.after(Time.current.beginning_of_week).count
-    abv_sequence = drinks_today_relation.pluck(:abv).map{|abv| abv >= strong_alcohol_threshold ? 'strong' : 'weak'}.join(',')
+    abv_sequence = drinks_today_relation.pluck(:abv).compact.map{|abv| abv >= strong_alcohol_threshold ? 'strong' : 'weak'}.join(',')
     abv_relations = drinks_today_relation.each_with_index.map do |d, i|
       if i == 0
         '0'

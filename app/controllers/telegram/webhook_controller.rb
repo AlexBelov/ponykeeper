@@ -17,17 +17,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
     return unless check_for_achievements
-    notification_response = ''
-    achievements = user.check_for_achievements
-    if achievements.present?
-      notification_response += achievements.map{|a| a.response(user)}.join("\n")
-    end
-    ranks = user.check_for_ranks
-    if ranks.present?
-      notification_response += "\n"
-      notification_response += ranks.map{|a| a.response(user)}.join("\n")
-    end
-    respond_with :message, text: Message.add_random_image(notification_response), parse_mode: :Markdown if notification_response.present?
+    ar_response = Message.handle_achievements_and_ranks(user)
+    respond_with :message, text: ar_response, parse_mode: :Markdown if ar_response.present?
   rescue Exception => e
     puts "Error in message handler - #{e.message}".red
     return true
@@ -123,17 +114,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     response = Book.add_book(user, data)
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
-    notification_response = ''
-    achievements =  user.check_for_achievements
-    if achievements.present?
-      notification_response += achievements.map{|a| a.response(user)}.join("\n")
-    end
-    ranks = user.check_for_ranks
-    if ranks.present?
-      notification_response += "\n"
-      notification_response += ranks.map{|a| a.response(user)}.join("\n")
-    end
-    respond_with :message, text: Message.add_random_image(notification_response), parse_mode: :Markdown if notification_response.present?
+    ar_response = Message.handle_achievements_and_ranks(user)
+    respond_with :message, text: ar_response, parse_mode: :Markdown if ar_response.present?
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
@@ -145,17 +127,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     response = Book.finish_book(user, data)
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
-    notification_response = ''
-    achievements =  user.check_for_achievements
-    if achievements.present?
-      notification_response += achievements.map{|a| a.response(user)}.join("\n")
-    end
-    ranks = user.check_for_ranks
-    if ranks.present?
-      notification_response += "\n"
-      notification_response += ranks.map{|a| a.response(user)}.join("\n")
-    end
-    respond_with :message, text: Message.add_random_image(notification_response), parse_mode: :Markdown if notification_response.present?
+    ar_response = Message.handle_achievements_and_ranks(user)
+    respond_with :message, text: ar_response, parse_mode: :Markdown if ar_response.present?
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message

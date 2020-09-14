@@ -6,10 +6,10 @@ class Rank < ApplicationRecord
     drinks = user.drinks.count
     books = user.books_users.where(finished: true).count
     drink_ranks = Rank.where(entity: :drink).
-      where('threshold < ?', drinks).
+      where('threshold <= ?', drinks).
       filter{|r| !user.ranks.where(id: r.id).present?}
     book_ranks = Rank.where(entity: :book).
-      where('threshold < ?', books).
+      where('threshold <= ?', books).
       filter{|r| !user.ranks.where(id: r.id).present?}
     user.ranks << [drink_ranks + book_ranks] if [drink_ranks + book_ranks].present?
     drink_ranks + book_ranks
