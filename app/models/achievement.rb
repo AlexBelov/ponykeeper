@@ -34,6 +34,7 @@ class Achievement < ApplicationRecord
         d.volume > drinks_today_relation[i-1].volume ? '+1' : '-1'
       end
     end.join(',')
+    kinds_of_alcohol_today = Drink.where(id: drinks_today_relation.pluck(:drink_id)).pluck(:name).uniq.compact.count
     achievements = Achievement.all.
       filter{|a| begin eval(a.condition) rescue false end}.
       filter{|a| !user.has_achievement_today?(a)}
