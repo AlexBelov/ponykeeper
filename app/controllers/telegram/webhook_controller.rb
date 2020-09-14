@@ -10,10 +10,9 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       response = Message.add_random_image(response)
     elsif message['text'].present?
       response = Book.detect_book_mention(message['text'])
-      check_for_achievements = true
     elsif message['photo'].present?
       response = Drink.handle_drink(user, message)
-      check_for_achievements = true
+      check_for_achievements = response.present?
     end
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
