@@ -24,6 +24,10 @@ class User < ApplicationRecord
     Rank.check_for_ranks(self)
   end
 
+  def has_achievement?(achievement)
+    achievements_users.where(achievement_id: achievement.id).present?
+  end
+
   def has_achievement_today?(achievement)
     achievements_users.today.where(achievement_id: achievement.id).present?
   end
