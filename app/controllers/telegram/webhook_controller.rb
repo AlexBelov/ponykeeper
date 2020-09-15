@@ -37,7 +37,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def rules!(data = nil, *)
     message = Message.find_by(slug: 'rules')
     return unless message.present?
-    response = message.interpolate([])
+    response = message.interpolate({bot_commands: BotCommand.list_of_commands})
     return unless response.present?
     respond_with :message, text: response
   rescue Exception => e

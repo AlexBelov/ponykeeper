@@ -72,3 +72,21 @@ end
 Config.where(key: 'chat_id').first_or_create(value: '')
 Message.where(slug: 'person_of_a_day').first_or_create(content: "*Человеком дня* сегодня будет %{username}! Поднимем же за него бокалы!")
 Message.where(slug: 'drink_buddy').first_or_create(content: "*%{buddy_name}* сегодня пьёт с *%{master_name}*")
+
+[
+  {name: "roll", description: "ответ на вечный вопрос 'пить или не пить?'"},
+  {name: "rules", description: "прочитать правила"},
+  {name: "has_drink", description: "название_напитка - узнать, есть ли напиток в базе"},
+  {name: "add_drink", description: "название_напитка - добавить напиток в базу"},
+  {name: "add_book", description: "ссылка_на_книгу - добавить книгу в процессе чтения"},
+  {name: "finish_book", description: "ссылка_на_книгу - добавить книгу в прочитанное"},
+  {name: "top_books", description: "топ книг"},
+  {name: "top_readers", description: "топ читателей"},
+  {name: "top_drinks", description: "топ бухла"},
+  {name: "top_drinkers", description: "топ алкоголиков"},
+  {name: "all_achievements", description: "список достижений"},
+  {name: "my_achievements", description: "ваши личные достижения"},
+  {name: "find_drink_buddy", description: "найти собутыльника"},
+].each do |bc|
+  BotCommand.where(name: bc[:name]).first_or_create(description: bc[:description])
+end
