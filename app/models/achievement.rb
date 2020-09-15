@@ -8,7 +8,7 @@ class Achievement < ApplicationRecord
     drinks_today_relation = user.drinks_users.today
     drinks_today = drinks_today_relation.count
     books_today = user.books_users.today.count
-    books_finished_today = user.books_users.where(finished: true).count
+    books_finished_today = user.books_users.today.where(finished: true).count
     drinks_this_week = user.drinks_users.after(Time.current.beginning_of_week).count
     books_this_week = user.books_users.after(Time.current.beginning_of_week).count
     books_this_month = user.books_users.after(Time.current.beginning_of_week).count
