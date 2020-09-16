@@ -73,7 +73,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   end
 
   def top_readers!(data = nil, *)
-    ordered_users = User.joins(:books).order("COUNT(books.id) DESC").group("users.id").limit(5)
+    ordered_users = User.order(book_score: :desc).limit(10)
     response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name}"}.join("\n")
     respond_with :message, text: "*Топ читателей*\n" + response, parse_mode: :Markdown
   rescue Exception => e
@@ -82,7 +82,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   end
 
   def top_drinkers!(data = nil, *)
-    ordered_users = User.joins(:drinks).order("COUNT(drinks.id) DESC").group("users.id").limit(5)
+    ordered_users = User.order(drink_score: :desc).limit(10)
     response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name}"}.join("\n")
     respond_with :message, text: "*Топ алкоголиков*\n" + response, parse_mode: :Markdown
   rescue Exception => e
