@@ -178,6 +178,15 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     puts e.message
   end
 
+  def score!(data = nil, *)
+    user = User.handle_user(from)
+    return unless user.present?
+    respond_with :message, text: "*100% Спирт*: #{user.drink_score} мл\n*Законченные книги*: #{user.book_score.to_i}", parse_mode: :Markdown
+  rescue Exception => e
+    puts "Error in command handler".red
+    puts e.message
+  end
+
   private
 
   def kick_or_ban(message, ban = false)
