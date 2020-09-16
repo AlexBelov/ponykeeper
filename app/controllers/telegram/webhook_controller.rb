@@ -74,7 +74,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
 
   def top_readers!(data = nil, *)
     ordered_users = User.where('book_score > 0').order(book_score: :desc).limit(10)
-    response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name}"}.join("\n")
+    response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name} - #{u.book_score.to_i}"}.join("\n")
     respond_with :message, text: "*Топ читателей*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
@@ -83,7 +83,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
 
   def top_drinkers!(data = nil, *)
     ordered_users = User.where('drink_score > 0').order(drink_score: :desc).limit(10)
-    response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name}"}.join("\n")
+    response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name} - #{u.drink_score} мл"}.join("\n")
     respond_with :message, text: "*Топ алкоголиков*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
