@@ -83,7 +83,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
 
   def top_drinkers!(data = nil, *)
     ordered_users = User.where('drink_score > 0').order(drink_score: :desc).limit(10)
-    response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name} - #{u.drink_score} мл"}.join("\n")
+    response = ordered_users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name} - #{u.drink_score.to_i} мл"}.join("\n")
     respond_with :message, text: "*Топ алкоголиков*\n" + response, parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
@@ -181,7 +181,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def score!(data = nil, *)
     user = User.handle_user(from)
     return unless user.present?
-    respond_with :message, text: "*100% Спирт*: #{user.drink_score} мл\n*Законченные книги*: #{user.book_score.to_i}", parse_mode: :Markdown
+    respond_with :message, text: "*100% Спирт*: #{user.drink_score.to_i} мл\n*Законченные книги*: #{user.book_score.to_i}", parse_mode: :Markdown
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
