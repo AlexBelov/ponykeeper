@@ -49,7 +49,6 @@ class Book < ApplicationRecord
   end
 
   def self.extract_book(payload)
-    return unless payload.match?(Regexp.new(SITES.join('|')))
     url = URI.extract(payload).first
     Book.where(url: url).first_or_create
   rescue
