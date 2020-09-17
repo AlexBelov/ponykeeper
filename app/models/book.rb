@@ -1,7 +1,7 @@
 class Book < ApplicationRecord
   has_and_belongs_to_many :users
 
-  SITES = %w(livelib.ru goodreads.com fimfiction.net fantlab.ru ficbook.net samlib.ru author.today flibusta).freeze
+  SITES = %w(livelib.ru goodreads.com fimfiction.net fantlab.ru ficbook.net samlib.ru author.today flibusta everypony.ru ponyfiction.org).freeze
 
   def self.detect_book_mention(payload)
     book = extract_book(payload)
