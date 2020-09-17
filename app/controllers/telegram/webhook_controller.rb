@@ -9,7 +9,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       msg = Message.find_by(slug: 'welcome')
       return unless msg.present?
       response = msg.interpolate({first_name: User.get_full_name(message['new_chat_participant'])})
-      response = Message.add_random_image(response)
+      response = Message.add_image(response, :drink)
     elsif message['text'].present? && message['text'] == '!kick'
       response = kick_or_ban(message, false)
     elsif message['text'].present? && message['text'] == '!ban'
