@@ -4,11 +4,11 @@ class Message < ApplicationRecord
   end
 
   def self.add_random_image(text)
-    "#{text}[\u200c](#{Image.random})"
+    "[\u200c](#{Image.random})#{text}"
   end
 
   def self.add_image(text, image_type)
-    "#{text}[\u200c](#{Image.random(image_type)})"
+    "[\u200c](#{Image.random(image_type)})#{text}"
   end
 
   def self.handle_achievements_and_ranks(user)
