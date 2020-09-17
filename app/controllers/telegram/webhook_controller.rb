@@ -57,7 +57,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def top_books!(data = nil, *)
     ordered_books = Book.joins(:users).order("COUNT(users.id) DESC").group("books.id").limit(5)
     response = ordered_books.each_with_index.map{|b, i| "#{i + 1}. #{b.url}"}.join("\n")
-    respond_with :message, text: "*Топ книг*\n" + response, parse_mode: :Markdown
+    respond_with :message, text: "Топ книг\n" + response
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
