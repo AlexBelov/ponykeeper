@@ -4,8 +4,7 @@ class Book < ApplicationRecord
   SITES = %w(livelib.ru goodreads.com fimfiction.net fantlab.ru ficbook.net samlib.ru author.today flibusta everypony.ru ponyfiction.org).freeze
 
   def self.detect_book_mention(payload)
-    book = extract_book(payload)
-    return nil unless book.present?
+    return unless payload.match?(Regexp.new(SITES.join('|')))
     "Своим библиотекарским чутьём я вижу, что вы упомянули книгу. Чтобы добавить книгу в процессе чтения используйте команду */add_book ссылка_на_книгу*"
   rescue
     nil
