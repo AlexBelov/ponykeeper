@@ -21,7 +21,7 @@ class Message < ApplicationRecord
     end
     ranks = user.check_for_ranks
     if ranks.present?
-      notification_response += "\n"
+      notification_response += "\n" if achievements.present?
       notification_response += ranks.map{|a| a.response(user)}.join("\n")
       has_book_achievement ||= ranks.any?{|a| a.entity == 'book'}
     end
