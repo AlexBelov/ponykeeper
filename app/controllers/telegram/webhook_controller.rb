@@ -55,6 +55,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
 
   def roll!(data = nil, *)
     result = ['Пить =)', 'Не пить =('].sample
+    result = 'В пятницу только пить!' if Date.current.wday == 5
     response = "Пить или не пить? - *#{result}*"
     respond_with :message, text: response, parse_mode: :Markdown
   rescue Exception => e
