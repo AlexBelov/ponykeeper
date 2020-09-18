@@ -4,6 +4,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   def message(message)
     response = '';
     user = User.handle_user(message['from'])
+    user.update_columns(last_message_at: Time.current)
     check_for_achievements = false
     if message['new_chat_participant'].present?
       msg = Message.find_by(slug: 'welcome')
