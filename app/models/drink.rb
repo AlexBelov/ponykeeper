@@ -22,14 +22,14 @@ class Drink < ApplicationRecord
   end
 
   def self.handle_abv(tags)
-    abv_tag = tags.find{|t| t.match(/^(abv|a|а)/)}
+    abv_tag = tags.find{|t| t.match(/^(abv\d+|a\d+|а\d+)/)}
     abv_tag.scan(/[\d|_]+/).first.gsub('_', '.').to_f
   rescue
     nil
   end
 
   def self.handle_volume(tags)
-    volume_tag = tags.find{|t| t.match(/^(vol|v)/)}
+    volume_tag = tags.find{|t| t.match(/^(vol\d+|v\d+)/)}
     volume_tag.gsub('vol', '').scan(/\d+/).first.to_f
   rescue
     nil
