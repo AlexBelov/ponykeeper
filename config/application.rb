@@ -6,7 +6,7 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Buhlib
+module Ponykeeper
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
@@ -18,7 +18,7 @@ module Buhlib
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
 
-    Rails.application.routes.default_url_options[:host] = 'https://925d239f8cad.ngrok.io'
-    # Rails.application.routes.default_url_options[:host] = 'https://buhlib.herokuapp.com'
+    Rails.application.routes.default_url_options[:host] = 'https://5fb5349b2e08.ngrok.io'
+    # Rails.application.routes.default_url_options[:host] = 'https://ponykeeper.herokuapp.com'
   end
 end
