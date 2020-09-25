@@ -1,13 +1,10 @@
 class Image < ApplicationRecord
-  enum entity: [:drink, :book]
-
-  def self.random(image_types = entities.values)
-    where(entity: image_types).all.sample.try(:url)
+  def self.random
+    all.sample.try(:url)
   end
 
   rails_admin do
     show do
-      field :entity
       field :url
       field :image do
         formatted_value do

@@ -1,7 +1,7 @@
 development:
   adapter: postgresql
   pool: 5
-  database: buhlib_dev
+  database: ponykeeper_dev
   host: localhost
   user: <%= ENV["PG_USERNAME"] %>
   password: <%= ENV["PG_PASSWORD"] %>
