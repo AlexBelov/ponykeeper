@@ -19,6 +19,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       response = mute_or_unmute(message, false)
     elsif message['text'].present? && message['text'].include?('!unmute')
       response = mute_or_unmute(message, true)
+    elsif message['text'].present? && message['text'].include?('!warn')
+      response = warn(message)
     end
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
@@ -112,5 +114,30 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     })
     return "*#{user.full_name}* cнял мьют с *#{name}*" if unmute
     "*#{user.full_name}* замьютил *#{name}* на #{distance_of_time_in_words(Time.current, until_time)}"
+  end
+
+  def warn(message)
+    user = User.handle_user(message['from'])
+    return unless user.present? && user.admin.present?
+    cannot_kick_usernames = Admin.where.not(user_id: nil).includes(:user).pluck(:username).concat([Rails.application.credentials.telegram[:bot][:username]])
+    message_from = message['reply_to_message']['from']
+    user_id, name = if message_from.present? && !cannot_kick_usernames.include?(message_from['username'])
+      [message_from['id'], [message_from['first_name'], message_from['last_name']].join(' ')]
+    end
+    return "Не могу выдать пользователю warn" unless user_id.present?
+    user.update_columns(warns: user.warns + 1)
+    warns_limit = Config.find_by(key: 'warns_limit').value.to_i
+    response = ''
+    if user.warns >= warns_limit
+      user.update_columns(warns: 0)
+      until_date = (Time.current + 1.minute).to_i
+      Telegram.bot.kick_chat_member({
+        chat_id: Rails.application.credentials.telegram[:bot][:chat_id].to_i,
+        user_id: user_id,
+        until_date: until_date
+      })
+      return "#{name} получил #{warns_limit} предупреждений и был кикнут"
+    end
+    "#{name} получил #{user.warns} предупреждений из #{warns_limit}"
   end
 end

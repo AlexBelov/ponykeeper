@@ -22,3 +22,5 @@ Message.where(slug: 'person_of_a_day').first_or_create(content: "*Человек
 ].each do |bc|
   BotCommand.where(name: bc[:name]).first_or_create(description: bc[:description])
 end
+
+Config.where(key: 'warns_limit').first_or_create(value: '3')
