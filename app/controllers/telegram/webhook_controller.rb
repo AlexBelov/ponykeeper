@@ -21,6 +21,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       response = mute_or_unmute(message, true)
     elsif message['text'].present? && message['text'].include?('!warn')
       response = warn(message)
+    elsif message['text'].present? && message['text'].include?('!restrict_media')
+      response = mute_or_unmute(message, true, true)
     end
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
@@ -68,7 +70,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     "*#{user.full_name}* #{ban ? 'забанил' : 'кикнул'} *#{name}*"
   end
 
-  def mute_or_unmute(message, unmute = false)
+  def mute_or_unmute(message, unmute = false, restrict_media = false)
     user = User.handle_user(message['from'])
     mute_for = message['text'].gsub('!mute', '').strip
     mute_for = '1 hour' unless mute_for.present?
@@ -84,7 +86,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       [message_from['id'], [message_from['first_name'], message_from['last_name']].join(' ')]
     end
     return "Не могу замьютить пользователя" unless user_id.present?
-    value = begin mute_for.scan(/\d+/)[0].to_i rescue 1 end
+    value = begin mute_for.scan(/\d+/)[0].to_i rescue 2 end
     mute_time, unit =
     if mute_for.include?('year')
       value.years
@@ -97,21 +99,23 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     elsif mute_for.include?('hour')
       value.hours
     else
-      value.minutes
+      value.years
     end
     until_time = Time.current + mute_time
+    permissions = {
+      can_send_messages: unmute,
+      can_send_media_messages: unmute && !restrict_media,
+      can_send_polls: unmute && !restrict_media,
+      can_send_other_messages: unmute && !restrict_media,
+      can_add_web_page_previews: unmute && !restrict_media
+    }
     Telegram.bot.restrict_chat_member({
       chat_id: Rails.application.credentials.telegram[:bot][:chat_id].to_i,
       user_id: user_id,
-      permissions: {
-        can_send_messages: unmute,
-        can_send_media_messages: unmute,
-        can_send_polls: unmute,
-        can_send_other_messages: unmute,
-        can_add_web_page_previews: unmute
-      },
+      permissions: permissions,
       until_date: until_time.to_i
     })
+    return "*#{user.full_name}* запретил *#{name}* медиа-сообщения" if restrict_media
     return "*#{user.full_name}* cнял мьют с *#{name}*" if unmute
     "*#{user.full_name}* замьютил *#{name}* на #{distance_of_time_in_words(Time.current, until_time)}"
   end
