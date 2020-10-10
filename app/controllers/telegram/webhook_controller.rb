@@ -6,6 +6,12 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     user = User.handle_user(message['from'])
     user.update_columns(last_message_at: Time.current)
     check_for_achievements = false
+    reputation_words = Config.
+      where(key: ['reputation_increase_words', 'reputation_decrease_words']).
+      pluck(:value).
+      join(',').
+      split(',').
+      map{|w| w.downcase.strip}
     if message['new_chat_participant'].present?
       msg = Message.find_by(slug: 'welcome')
       return unless msg.present?
@@ -23,6 +29,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       response = warn(message)
     elsif message['text'].present? && message['text'].include?('!restrict_media')
       response = mute_or_unmute(message, true, true)
+    elsif message['text'].present? && reputation_words.map{|w| message['text'].include?(w)}.any?
+      response = reputation(message)
     end
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
@@ -165,5 +173,38 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       return "#{name} получил #{warns_limit} предупреждений и был кикнут"
     end
     "#{name} получил #{user.warns} предупреждений из #{warns_limit}"
+  end
+
+  def reputation(message)
+    user = User.handle_user(message['from'])
+    reputation_user = begin User.handle_user(message['reply_to_message']['from']) rescue nil end
+    return unless user.present? && reputation_user.present? && user.id != reputation_user.id
+    reputation_increase_words = Config.find_by(key: 'reputation_increase_words').
+      value.
+      split(',').
+      map{|w| w.downcase.strip}
+    reputation_deccrease_words = Config.find_by(key: 'reputation_decrease_words').
+      value.
+      split(',').
+      map{|w| w.downcase.strip}
+    text = message['text']
+    reputation = reputation_user.reputation
+    message = if reputation_increase_words.map{|w| text.include?(w)}.any?
+      reputation += 1
+      Message.find_by(slug: 'reputation_increase')
+    elsif reputation_deccrease_words.map{|w| text.include?(w)}.any?
+      reputation -= 1
+      reputation = 0 if reputation < 0
+      Message.find_by(slug: 'reputation_decrease')
+    else
+      nil
+    end
+    return nil unless message.present?
+    reputation_user.update(reputation: reputation)
+    response = message.interpolate({
+      first: "[#{user.full_name_or_username}](tg://user?id=#{user.id})",
+      second: "[#{reputation_user.full_name_or_username}](tg://user?id=#{reputation_user.id})",
+      reputation: reputation
+    })
   end
 end

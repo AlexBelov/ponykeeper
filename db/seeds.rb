@@ -16,6 +16,8 @@ Message.where(slug: 'rules').first_or_create(content: Base64.decode64("0JPQvtC70
 Message.where(slug: 'welcome').first_or_create(content: Base64.decode64("0JTQvtCx0YDQviDQv9C+0LbQsNC70L7QstCw0YLRjCDQsiDQkdGD0YXQvtGC\n0LXQutGDINCc0Y3QudC90YXRjdGC0YLQtdC90LAsICole2ZpcnN0X25hbWV9\nKiEKCtCjINC90LDRgSDQvNC+0LbQvdC+ICjQuCDQvdGD0LbQvdC+KSDQvtCx\n0YHRg9C20LTQsNGC0Ywg0LrQvdC40LPQuCDQuCDQsNC70LrQvtCz0L7Qu9GM\nLgrQndCw0LbQvNC40YLQtSAvcnVsZXMg0YfRgtC+0LHRiyDQv9C+0LvRg9GH\n0LjRgtGMINGB0L/RgNCw0LLQutGDINC/0L4g0LHQvtGC0YMsINC+0L0g0YPQ\nvNC10LXRgiDQvNC90L7Qs9C+INC/0L7Qu9C10LfQvdGL0YUg0YjRgtGD0Loh\n"))
 Message.where(slug: 'person_of_a_day').first_or_create(content: "*Человеком дня* сегодня будет %{username}! Поднимем же за него бокалы!")
 Message.where(slug: 'ship').first_or_create(content: "Пара дня: %{first} + %{second} = ❤️")
+Message.where(slug: 'reputation_increase').first_or_create(content: "%{first} увеличил репутацию %{second} до %{reputation}")
+Message.where(slug: 'reputation_decrease').first_or_create(content: "%{first} понизил репутацию %{second} до %{reputation}")
 
 [
   {name: "rules", description: "прочитать правила"},
@@ -28,3 +30,5 @@ end
 Config.where(key: 'warns_limit').first_or_create(value: '3')
 Config.where(key: 'shippering_period_hours').first_or_create(value: '24')
 Config.where(key: 'last_shippering').first_or_create(value: nil)
+Config.where(key: 'reputation_increase_words').first_or_create(value: "Одобряю, Да благославит тебя Селестия")
+Config.where(key: 'reputation_decrease_words').first_or_create(value: "Порицаю, Да проклянёт тебя Луна")
