@@ -2,6 +2,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
   include ActionView::Helpers::DateHelper
 
   def message(message)
+    Chat.handle_chat(message)
     response = '';
     user = User.handle_user(message['from'])
     user.update_columns(last_message_at: Time.current)
@@ -96,7 +97,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     end
     return "Не могу #{ban ? 'забанить' : 'кикнуть'} пользователя" unless user_id.present?
     until_date = ban ? (Time.current + 2.years).to_i : (Time.current + 1.minute).to_i
-    Telegram.bot.kick_chat_member({chat_id: Rails.application.credentials.telegram[:bot][:chat_id].to_i, user_id: user_id, until_date: until_date})
+    Telegram.bot.kick_chat_member({chat_id: Chat.main_chat_id, user_id: user_id, until_date: until_date})
     "*#{user.full_name}* #{ban ? 'забанил' : 'кикнул'} *#{name}*"
   end
 
@@ -140,7 +141,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       can_add_web_page_previews: unmute && !restrict_media
     }
     Telegram.bot.restrict_chat_member({
-      chat_id: Rails.application.credentials.telegram[:bot][:chat_id].to_i,
+      chat_id: Chat.main_chat_id,
       user_id: user_id,
       permissions: permissions,
       until_date: until_time.to_i
@@ -166,7 +167,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       user.update_columns(warns: 0)
       until_date = (Time.current + 1.minute).to_i
       Telegram.bot.kick_chat_member({
-        chat_id: Rails.application.credentials.telegram[:bot][:chat_id].to_i,
+        chat_id: Chat.main_chat_id,
         user_id: user_id,
         until_date: until_date
       })
