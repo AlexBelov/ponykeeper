@@ -18,7 +18,7 @@ module Ponykeeper
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
 
-    Rails.application.routes.default_url_options[:host] = 'https://5fb5349b2e08.ngrok.io'
-    # Rails.application.routes.default_url_options[:host] = 'https://ponykeeper.herokuapp.com'
+    # Rails.application.routes.default_url_options[:host] = 'https://5fb5349b2e08.ngrok.io'
+    Rails.application.routes.default_url_options[:host] = 'https://ponykeeper.herokuapp.com'
   end
 end
