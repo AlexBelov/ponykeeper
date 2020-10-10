@@ -69,7 +69,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     return unless message.present?
     response = message.interpolate({})
     return unless response.present?
-    respond_with :message, text: response
+    respond_with :message, text: response, disable_web_page_preview: true
   rescue Exception => e
     puts "Error in command handler".red
     puts e.message
