@@ -14,6 +14,10 @@ class Chat < ApplicationRecord
   end
 
   def self.main_chat_id
-    where(role: :main).try(:telegram_id).to_i
+    find_by(role: :main).try(:telegram_id).to_i
+  end
+
+  def self.report_chat_id
+    find_by(role: :report).try(:telegram_id).to_i
   end
 end

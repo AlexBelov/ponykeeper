@@ -30,6 +30,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       response = warn(message)
     elsif message['text'].present? && message['text'].include?('!restrict_media')
       response = mute_or_unmute(message, true, true)
+    elsif message['text'].present? && message['text'].include?('!report')
+      response = report(message)
     elsif message['text'].present? && reputation_words.map{|w| message['text'].include?(w)}.any?
       response = reputation(message)
     end
@@ -207,5 +209,18 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       second: "[#{reputation_user.full_name_or_username}](tg://user?id=#{reputation_user.id})",
       reputation: reputation
     })
+  end
+
+  def report(message)
+    user = User.handle_user(message['from'])
+    reply_to = message['reply_to_message']
+    return unless reply_to.present?
+    message_link = "https://t.me/c/#{reply_to['chat']['id'].to_s.gsub(/^-100/, '')}/#{reply_to['message_id']}"
+    Telegram.bot.send_message({
+      text: "[#{user.full_name_or_username}](tg://user?id=#{user.id}) сообщает о [нарушении](#{message_link})",
+      chat_id: Chat.report_chat_id,
+      parse_mode: :Markdown
+    })
+    "О нарушении сообщено администраторам"
   end
 end
