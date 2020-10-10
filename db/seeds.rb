@@ -31,5 +31,5 @@ end
 Config.where(key: 'warns_limit').first_or_create(value: '3')
 Config.where(key: 'shippering_period_hours').first_or_create(value: '24')
 Config.where(key: 'last_shippering').first_or_create(value: nil)
-Config.where(key: 'reputation_increase_words').first_or_create(value: "Одобряю, Да благославит тебя Селестия")
+Config.where(key: 'reputation_increase_words').first_or_create(value: "Одобряю, Да благословит тебя Селестия")
 Config.where(key: 'reputation_decrease_words').first_or_create(value: "Порицаю, Да проклянёт тебя Луна")
