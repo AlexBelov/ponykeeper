@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  enum status: [:active, :left, :kicked, :banned]
+
   has_one :admin
   belongs_to :group
 
@@ -27,6 +29,7 @@ class User < ApplicationRecord
   rails_admin do
     list do
       field :id
+      field :status
       field :group
       include_all_fields
     end

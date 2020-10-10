@@ -13,27 +13,49 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       join(',').
       split(',').
       map{|w| w.downcase.strip}
-    if message['new_chat_participant'].present?
+    response = if message['new_chat_participant'].present?
+      new_user = User.handle_user(message['new_chat_participant'])
+      new_user.update(status: :active)
       msg = Message.find_by(slug: 'welcome')
       return unless msg.present?
+      Chat.send_report_message("[#{new_user.full_name_or_username}](tg://user?id=#{new_user.id}) добавился в чат")
       response = msg.interpolate({first_name: User.get_full_name(message['new_chat_participant'])})
-      response = Message.add_random_image(response)
+      Message.add_random_image(response)
+    elsif message['left_chat_participant'].present?
+      user_left = User.handle_user(message['left_chat_participant'])
+      user_left.update(status: :left)
+      Chat.send_report_message("[#{user_left.full_name_or_username}](tg://user?id=#{user_left.id}) покинул чат")
+      nil
     elsif message['text'].present? && message['text'] == '!kick'
       response = kick_or_ban(message, false)
+      Chat.send_report_message(response)
+      response
     elsif message['text'].present? && message['text'] == '!ban'
       response = kick_or_ban(message, true)
+      Chat.send_report_message(response)
+      response
     elsif message['text'].present? && message['text'].include?('!mute')
       response = mute_or_unmute(message, false)
+      Chat.send_report_message(response)
+      response
     elsif message['text'].present? && message['text'].include?('!unmute')
       response = mute_or_unmute(message, true)
+      Chat.send_report_message(response)
+      response
     elsif message['text'].present? && message['text'].include?('!warn')
       response = warn(message)
+      Chat.send_report_message(response)
+      response
     elsif message['text'].present? && message['text'].include?('!restrict_media')
       response = mute_or_unmute(message, true, true)
+      Chat.send_report_message(response)
+      response
     elsif message['text'].present? && message['text'].include?('!report')
-      response = report(message)
+      report(message)
     elsif message['text'].present? && reputation_words.map{|w| message['text'].include?(w)}.any?
       response = reputation(message)
+      Chat.send_report_message(response)
+      response
     end
     return unless response.present?
     respond_with :message, text: response, parse_mode: :Markdown
@@ -98,6 +120,8 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
       [message_from['id'], [message_from['first_name'], message_from['last_name']].join(' ')]
     end
     return "Не могу #{ban ? 'забанить' : 'кикнуть'} пользователя" unless user_id.present?
+    target_user = User.find_by(telegram_id: user_id)
+    target_user.update(status: ban ? :banned : :kicked)
     until_date = ban ? (Time.current + 2.years).to_i : (Time.current + 1.minute).to_i
     Telegram.bot.kick_chat_member({chat_id: Chat.main_chat_id, user_id: user_id, until_date: until_date})
     "*#{user.full_name}* #{ban ? 'забанил' : 'кикнул'} *#{name}*"
@@ -216,11 +240,7 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     reply_to = message['reply_to_message']
     return unless reply_to.present?
     message_link = "https://t.me/c/#{reply_to['chat']['id'].to_s.gsub(/^-100/, '')}/#{reply_to['message_id']}"
-    Telegram.bot.send_message({
-      text: "[#{user.full_name_or_username}](tg://user?id=#{user.id}) сообщает о [нарушении](#{message_link})",
-      chat_id: Chat.report_chat_id,
-      parse_mode: :Markdown
-    })
+    Chat.send_report_message("[#{user.full_name_or_username}](tg://user?id=#{user.id}) сообщает о [нарушении](#{message_link})")
     "О нарушении сообщено администраторам"
   end
 end

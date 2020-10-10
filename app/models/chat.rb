@@ -20,4 +20,14 @@ class Chat < ApplicationRecord
   def self.report_chat_id
     find_by(role: :report).try(:telegram_id).to_i
   end
+
+  def self.send_report_message(message)
+    Telegram.bot.send_message({
+      text: message,
+      chat_id: self.report_chat_id,
+      parse_mode: :Markdown
+    })
+  rescue
+    nil
+  end
 end
