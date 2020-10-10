@@ -105,6 +105,14 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     respond_with :message, text: response, parse_mode: :Markdown
   end
 
+  def from!(data = nil, *)
+    payload = data.downcase
+    sanitized_payload = "%#{User.sanitize_sql_like(payload)}%"
+    users = User.joins(:city, :country).where("cities.name ILIKE ? OR countries.name ILIKE ?", sanitized_payload, sanitized_payload).order(:id)
+    response = users.each_with_index.map{|u, i| "#{i + 1}. #{u.full_name_or_username}"}.join("\n")
+    respond_with :message, text: "*Поняши из #{payload.capitalize}*\n" + response, parse_mode: :Markdown
+  end
+
   private
 
   def kick_or_ban(message, ban = false)

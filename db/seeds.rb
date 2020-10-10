@@ -23,6 +23,7 @@ Message.where(slug: 'reputation_decrease').first_or_create(content: "%{first} п
   {name: "rules", description: "прочитать правила"},
   {name: "help", description: "прочитать справку по боту"},
   {name: "ship", description: "шипперинг"},
+  {name: "from", description: "- город или страна - показать поняш из конкретного города/страны"},
 ].each do |bc|
   BotCommand.where(name: bc[:name]).first_or_create(description: bc[:description])
 end

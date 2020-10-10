@@ -2,7 +2,9 @@ class User < ApplicationRecord
   enum status: [:active, :left, :kicked, :banned]
 
   has_one :admin
-  belongs_to :group
+  belongs_to :group, optional: true
+  belongs_to :country, optional: true
+  belongs_to :city, optional: true
 
   def full_name
     [first_name, last_name].join(' ').strip
@@ -31,6 +33,8 @@ class User < ApplicationRecord
       field :id
       field :status
       field :group
+      field :country
+      field :city
       include_all_fields
     end
   end
