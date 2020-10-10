@@ -5,6 +5,10 @@ class User < ApplicationRecord
     [first_name, last_name].join(' ').strip
   end
 
+  def full_name_or_username
+    full_name.present? ? full_name : username
+  end
+
   def title
     "##{id} #{username}"
   end

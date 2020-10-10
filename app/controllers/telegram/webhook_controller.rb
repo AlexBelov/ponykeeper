@@ -50,6 +50,28 @@ class Telegram::WebhookController < Telegram::Bot::UpdatesController
     respond_with :message, text: response
   end
 
+  def ship!(data = nil, *)
+    message = Message.find_by(slug: 'ship')
+    return unless message.present?
+    shippering_period = Config.find_by(key: 'shippering_period_hours').value.to_f
+    last_shippering = Config.find_by(key: 'last_shippering')
+    last_shippering_at = begin Time.parse(last_shippering.value) rescue Time.current - 1.year end
+    time_difference = (Time.current - last_shippering_at) / 1.hour
+    if time_difference < shippering_period
+      next_shippering = (shippering_period - time_difference).to_i
+      respond_with :message, text: "Пара дня уже выбрана. Новую пару можно будет выбрать через #{next_shippering} #{Russian::p(next_shippering, 'час', 'часа', 'часов', 'часа')}."
+      return
+    end
+    first = User.all.sample
+    second = User.where.not(id: first.id).sample
+    response = message.interpolate({
+      first: "[#{first.full_name_or_username}](tg://user?id=#{first.id})",
+      second: "[#{second.full_name_or_username}](tg://user?id=#{second.id})",
+    })
+    last_shippering.update(value: Time.current)
+    respond_with :message, text: response, parse_mode: :Markdown
+  end
+
   private
 
   def kick_or_ban(message, ban = false)
